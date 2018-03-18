@@ -94,4 +94,21 @@ Let’s talk about how .then(...) function makes chaining possible and then talk
 In the code above, we can see that we return a value line 3 `return inMemoryCache[user.id]` . But how come, we are still able to call `then` on it?This method is available only on promises not on other variable types? In fact, `then` always creates a promise and returns this promise and this is why we can chain promises together.
 
 What are the gotchas of chaining? I found a very interesting github gist about that here. At the end of the article, the author gave a puzzle that we have to resolve: here they are, with an explanation for each one of them.
-That's it! Thanks for reading.
+
+Explanation of Puzzle 1:
+
+Since the first `then` returns a promise, the second `then` is called on a promise and wait for it to resolve in order to execute it’s own callback.
+
+Explanation of Puzzle 2:
+
+Since the first `then` returns `undefined` the `then` is executed with `undefined` as `this` and executes immediately, because it doesn’t have any promise to wait for to resolve.
+
+Explanation of Puzzle 3:
+
+The parameter of the `then` function is not a function, but the result of the function which is a promise. Instead, what we should give to `then` is a callback function which take as parameter the result of the previous promise in the chain, and this callback function will be executed. Here, we give a function that is immediately executed. Meanwhile, the first promise resolved, so the value is passed to the default callback function that was constructed to the second `then`. The second `then`, construct a promise around that value and returns the value, which is caught and passed as parameter to the last then.
+
+Explanation of Puzzle 4:
+
+In this example, the second `then` takes as parameter a function. So the callback to the first call of `doSomething()` is now a function. This function will be executed when the first promise resolves. Same applies to the second `then` .
+
+I hope this article was useful!
