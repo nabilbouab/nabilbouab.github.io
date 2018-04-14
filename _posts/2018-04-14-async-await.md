@@ -8,7 +8,7 @@ This post is about asynchronous programming in JavaScript with async/await. Let�
 
 ```javascript
 function getPosts(){
-fetch(“https://jsonplaceholder.typicode.com”).then(function(res){
+fetch('https://jsonplaceholder.typicode.com').then(function(res){
 	console.log(res);
 })
 }
@@ -23,7 +23,7 @@ Let’s say we need to get the first post of the series of posts of the user wit
 
 ```javascript
 function getPosts(){
-fetch(“https://jsonplaceholder.typicode.com”).then(function(res){
+fetch('https://jsonplaceholder.typicode.com').then(function(res){
 	return res.filter(function(user){user.id==2});
 }).then(function(usertwoPosts){
 	return usertwoPosts[0];
