@@ -2,6 +2,7 @@
 layout: post
 title:  "JavaScript MVVM vanilla flavour"
 author: "Nabil"
+categories: Design
 ---
 “Fake it ‘till you make it” doesn’t work when developing in JavaScript. If you want to use any framework in JavaScript, you have to understand how it works. Ok, you don’t HAVE to, but it is preferable to invest time understanding; then you will be able to code more efficiently and grasp the documentation of any new framework quickly.
 

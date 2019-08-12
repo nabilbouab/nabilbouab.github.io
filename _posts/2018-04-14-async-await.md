@@ -2,6 +2,7 @@
 layout: post
 title:  "async-await"
 author: "Nabil"
+categories: JavaScript
 ---
 
 This post is about asynchronous programming in JavaScript with async/await. Let’s say we have a function that enables us to get data from a server located in another country which is reachable via this url https://jsonplaceholder.typicode.com which can give us the data regarding some blog posts. Let’s do this! So we use the promise based api that our browser gives us in order to fetch data from the web which is the fetch function. this returns us a Promise that will be fulfilled with the data that the server returns (aka the posts that we are looking for). So let’s put this into a function 

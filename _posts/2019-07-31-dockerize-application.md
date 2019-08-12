@@ -2,6 +2,7 @@
 layout: post
 title:  "Dockerize your application"
 author: "Nabil"
+categories: DevOps
 ---
 
 You developed an application and you are not sure what is the best way to deploy it? Or do you have a deployment process but it is tedious and error prone and you are looking for a better and more reproducible way of deploying your software? If so, you are reading the right article.
