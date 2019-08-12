@@ -2,6 +2,7 @@
 layout: post
 title:  "JavaScript Promises"
 author: "Nabil"
+categories: JavaScript
 ---
 
 Javascript is a single-threaded programming language . If you have already programmed in JavaScript, you must have come across callback. If we perform a costly operation like I/O, or HTTP request that reaches a server to the other part of the world, we do not want to wait for it to finish before executing the next instruction. Instead, we use asynchronous programming.

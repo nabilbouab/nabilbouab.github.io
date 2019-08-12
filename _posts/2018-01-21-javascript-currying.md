@@ -2,6 +2,7 @@
 layout: post
 title:  "JavaScript Currying"
 author: "Nabil"
+categories: JavaScript
 ---
 
 Have you ever come across a JavaScript code where a function was called like this `foo(1)(2)(3)` and you were not sure what was happening? If this is the case, you are reading the right blog post.
