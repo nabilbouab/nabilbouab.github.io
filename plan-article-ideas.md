@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 # Plan article
-=======
-#Plan article
->>>>>>> Add article rails deployment
 
 Intro: Donner envie de continuer en annonçant le résultat final.
 Plan: annoncer les technologies et l'architecture high level
