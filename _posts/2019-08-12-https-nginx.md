@@ -64,7 +64,7 @@ http {
 
 	server {
 		listen 80;
-		server_name domain.fr;
+		server_name our-awesome-domain.fr;
 
     location / {
         proxy_pass http://public/;
@@ -140,37 +140,18 @@ If the last command succeeds, we generated the certificates which have been inst
 
 You can find the code of this step [here](https://github.com/nabilbouab/tech-blog-labs/tree/step-2)
 
-## Step 3: Configure NGINX to access the certificates
 
-In order to do the ssl termination, Nginx needs to be able to access your 
+## Step 3: Make HTTPS work
 
-
-## Step 4: Make the redirection from HTTP to HTTPS
+This last step will consist in two steps:
+  * We first need to make a redirection from HTTP to HTTPS
+  * We need to make Nginx do the encryption/decryption by providing it access to the generated certificates
 
 We need to make an HTTP redirection to HTTPS. Let's try to understand this better in a more detailed diagram:
 
 ![SSL termination diagram](/assets/nginx-ssl-termination.png)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-We need to secure all that stuff now! We will need to setup an HTTP server in order to do the TLS communication with clients. This is very important as we have a login page to the admin part of our application so we don't want to have our password not encrypted in the wire between the client and the server. 
-
-We decided to use let's encrypt and Nginx to do that. Let's encrypt is a certificate authority which will verify that we are the owner of the domain and give us certificates. The certificates are a pair of keys which are just two files.
-
-The first step is to generate the certificates on the local machine. We will use `certbot` to do that.
-
-Then, we need to configure nginx to find the certificate to encrypt the ongoing and outgoing traffic.
+In order to do the ssl termination, Nginx needs to be able to access the certificates which will be used to encrypt and decrypt the data. We need to change the Nginx config to point it to the newly generated certificates and make the redirection that way:
 
 ```
 worker_processes  1;
@@ -195,11 +176,11 @@ http {
 
 	server {
 		listen 80;
-		server_name #DOMAIN#;
+		server_name our-awesome-domain.fr;
 
 		location ~ /.well-known {
 			allow all;
-			root /var/www/#DOMAIN#/;
+			root /var/www/our-awesome-domain.fr/;
 		}
 
     location /favicon.ico {
@@ -213,10 +194,10 @@ http {
 
   server {
     listen 443 ssl;
-    server_name #DOMAIN#;
+    server_name our-awesome-domain.fr;
 
-    ssl_certificate /etc/letsencrypt/live/www.#DOMAIN#/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/www.#DOMAIN#/privkey.pem;
+    ssl_certificate /etc/letsencrypt/live/www.our-awesome-domain.fr/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/www.our-awesome-domain.fr/privkey.pem;
 
     ssl_session_cache shared:SSL:50m;
     ssl_session_timeout 10m;
@@ -235,19 +216,34 @@ http {
 		
     location ~ /.well-known {
 			allow all;
-			root /var/www/#DOMAIN#/;
+			root /var/www/our-awesome-domain.fr/;
 		}
     
     location / {
       proxy_pass http://public/;
     }
   }
-
-
 }
 ```
 
-You can use the same config file and replace `#DOMAIN#` by your domain name.
+The redirection is done by returning a 301 to the browser and redirecting on https link. So the request will come to our Nginx server, which will return a 301 telling the browser to request whatever it requested but with https and we will then receive the new request on https. We created a new virtual host listening on 443 which is the HTTPS port.
+
+In order for Nginx to be able to access the certificate, we need to mount a volume which contains the certificates. We modify the docker-compose.yml file in the `nginx` service, to add the volumes and we need to expose port 443 as well:
+
+```
+  nginx:
+    build: ./nginx
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - /etc/ssl/dhparams:/etc/ssl/dhparams
+      - /etc/letsencrypt:/etc/letsencrypt
+    depends_on:
+      - web
+```
+
+You now need to run the docker-compose application on your server with `docker-compose up` and go to your browser typing www.our-awesome-domain.fr. The domain should be secure.
 
 # References
 
