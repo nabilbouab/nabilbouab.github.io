@@ -9,9 +9,13 @@ categories: DevOps
 
 ## What is HTTPS and why HTTPS?
 
-HTTPS is secure communication protocol that encrypts the data during the transit. 
-The first motivation to setup HTTPS, is obviously security: Encryption is critical when sending credentials to connect to Facebook account or online banking. Tools like wireshark enables anyone to sniff the network and analyse the data in transit.
-The second motivation is about Search engine optimisation: Google has decided to down rank all websites which are not in HTTPS.
+Let's start by stating two principles of public key cryptography that makes HTTPS work:
+  * Any message encrypted with Bob's public key can only be decrypted by Bob's private key
+  * Anyone with access to Alice's public key can verify that a message (signature) could only have been created by someone with access to Alice's private key
+
+Based on these two principles, we can say that: HTTPS is secure communication protocol that encrypts the data during the transit and makes sure that the server we talk to is the one it pretends to be.
+
+There are several motivations behind using HTTPS. The first motivation to setup HTTPS, is obviously security: Encryption is critical when sending credentials to connect to Facebook account or online banking. Tools like wireshark enables anyone to sniff the network and analyse the data in transit. We also want to make sure when connecting to Facebook that we are sending our credentials to the Facebook server. The second motivation is about Search engine optimisation: Google has decided to down rank all websites which are not in HTTPS. Even if you are maintaining a simple blog without any credentials, it is recommended by Google to use HTTPS.
 
 ## What is NGINX?
 
@@ -19,7 +23,7 @@ NGINX is a well established HTTP server which will receive the HTTP requests and
 
 # Architecture
 
-Now that we understand the motivation behing HTTPS, and what is NGINX, let me present the high level architecture of what we are going to build throughout this tutorial.
+Now that we understand the motivation behind HTTPS, and what is NGINX, let me present the high level architecture of what we are going to build throughout this tutorial.
 
 ![High level architecture diagram](/assets/nginx-https.png)
 
@@ -34,20 +38,20 @@ As a first step, we setup NGINX as an HTTP reverse proxy, we will kick the HTTPS
 The code for this is step [here](https://github.com/nabilbouab/tech-blog-labs/tree/step-1). The most important part of this configuration is the following:
 
 ```
-	upstream public {
-		server web:5000;
-	}
-
-	server {
-		listen 80;
-		server_name our-awesome-domain.fr;
-
-    location / {
-        proxy_pass http://public/;
+    upstream public {
+        server web:5000;
     }
-	}
+
+    server {
+        listen 80;
+        server_name our-awesome-domain.fr;
+
+        location / {
+            proxy_pass http://public/;
+        }
+    }
 ```
-We create an upstream which define a group of server that we later can reference in the `proxy_pass` directive.
+We create an upstream which defines a group of server that we later can reference in the `proxy_pass` directive.
 
 Then, in the `server` directive, we define a **virtual host** which will host our application. For those who don't know, a virtual host is a technique which consists in running multiple websites (for example www.company1.com and www.company2.com) on the same server. Virtual hosts can either be "by IP" in which case an IP address is given to each web server, or "by domain name" in which case several domain name are served from the same IP address.
 
@@ -111,72 +115,72 @@ In order to do the ssl termination, NGINX needs to be able to access the certifi
 worker_processes  1;
 
 events {
-	worker_connections  1024;
+    worker_connections  1024;
 }
 
 
 http {
-	include       mime.types;
-	default_type  application/octet-stream;
+    include       mime.types;
+    default_type  application/octet-stream;
 
-	sendfile        on;
+    sendfile        on;
 
-	keepalive_timeout  65;
+    keepalive_timeout  65;
 
 
-	upstream public {
-		server web:3000;
-	}
-
-	server {
-		listen 80;
-		server_name our-awesome-domain.fr;
-
-		location ~ /.well-known {
-			allow all;
-			root /var/www/our-awesome-domain.fr/;
-		}
-
-    location /favicon.ico {
-      root /var/www/;
+    upstream public {
+        server web:3000;
     }
 
-    location / {
-      return 301 https://$host$request_uri;
+    server {
+        listen 80;
+        server_name our-awesome-domain.fr;
+
+        location ~ /.well-known {
+            allow all;
+            root /var/www/our-awesome-domain.fr/;
+        }
+
+        location /favicon.ico {
+            root /var/www/;
+        }
+
+        location / {
+            return 301 https://$host$request_uri;
+        }
     }
-	}
 
-  server {
-    listen 443 ssl;
-    server_name our-awesome-domain.fr;
+    server {
+        listen 443 ssl;
+        server_name our-awesome-domain.fr;
 
-    ssl_certificate /etc/letsencrypt/live/www.our-awesome-domain.fr/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/www.our-awesome-domain.fr/privkey.pem;
+        ssl_certificate /etc/letsencrypt/live/www.our-awesome-domain.fr/fullchain.pem;
+        ssl_certificate_key /etc/letsencrypt/live/www.our-awesome-domain.fr/privkey.pem;
 
-    ssl_session_cache shared:SSL:50m;
-    ssl_session_timeout 10m;
+        ssl_session_cache shared:SSL:50m;
+        ssl_session_timeout 10m;
 
-    # ssl_dhparam /etc/ssl/dhparams/dhparam.pem;
+        # ssl_dhparam /etc/ssl/dhparams/dhparam.pem;
 
-    ssl_protocols TLSv1.1 TLSv1.2;
-    ssl_ciphers ECDH+AESGCM:ECDH+AES256:ECDH+AES128:DES-CBC3-SHA:!ADH:!AECDH:!MD5;
-    ssl_prefer_server_ciphers on;
+        ssl_protocols TLSv1.1 TLSv1.2;
+        ssl_ciphers ECDH+AESGCM:ECDH+AES256:ECDH+AES128:DES-CBC3-SHA:!ADH:!AECDH:!MD5;
+        ssl_prefer_server_ciphers on;
 
-    resolver 8.8.8.8 8.8.4.4;
-    ssl_stapling on;
-    ssl_stapling_verify on;
+        resolver 8.8.8.8 8.8.4.4;
+        ssl_stapling on;
+        ssl_stapling_verify on;
 
-    add_header Strict-Transport-Security "max-age=31536000; includeSubdomains; preload";
-		
-    location ~ /.well-known {
-			allow all;
-			root /var/www/our-awesome-domain.fr/;
-		}
-    
-    location / {
-      proxy_pass http://public/;
+        add_header Strict-Transport-Security "max-age=31536000; includeSubdomains; preload";
+            
+        location ~ /.well-known {
+            allow all;
+            root /var/www/our-awesome-domain.fr/;
+        }
+
+        location / {
+            proxy_pass http://public/;
+        }
     }
-  }
 }
 ```
 
