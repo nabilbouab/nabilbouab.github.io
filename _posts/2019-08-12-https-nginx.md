@@ -210,4 +210,6 @@ You now need to run the docker-compose application on your server with `docker-c
 
   * Thanks to my former colleague [Jeremy Rabasco](https://jrabasco.me/) to whom I stole some of his [blog config](https://github.com/jrabasco/LSBEngine) to reverse engineer how does all this work.
 
+  * Thanks to my former colleague [Antoine Wacheux](https://www.linkedin.com/in/antoine-wacheux-294482a3/) for reading the article and giving precious reviews.
+
   * For the virtual hosts explanation, I found a great one [here](https://httpd.apache.org/docs/2.4/vhosts/)
